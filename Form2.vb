@@ -10,6 +10,7 @@ Public Class AdventurerHomeForm
     Private gridPanel As TableLayoutPanel
     Private adventureCards As New List(Of AdventureCard)
     Private addNewCard As Panel
+    Private user As MainForm.UserInfo
 
     Public Sub New()
         InitializeComponent()
@@ -17,18 +18,24 @@ Public Class AdventurerHomeForm
         LoadSampleData()
     End Sub
 
+    Public Sub New(user As MainForm.UserInfo)
+        Me.user = user
+    End Sub
+
     Private Sub InitializeComponent()
-        ' Form properties
-        Me.Text = "Adventurer's Journal"
-        Me.Size = New Size(1200, 800)
-        Me.StartPosition = FormStartPosition.CenterScreen
-        Me.BackColor = Color.FromArgb(44, 62, 80)
-        Me.FormBorderStyle = FormBorderStyle.FixedDialog
+        Me.SuspendLayout()
+        '
+        'AdventurerHomeForm
+        '
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(44, Byte), Integer), CType(CType(62, Byte), Integer), CType(CType(80, Byte), Integer))
+        Me.ClientSize = New System.Drawing.Size(1920, 1080)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
         Me.MaximizeBox = False
-        Me.WindowState = FormWindowState.Normal
-        Me.FormBorderStyle = FormBorderStyle.None
-        Me.Size = Screen.PrimaryScreen.Bounds.Size
-        Me.Location = New Point(0, 0)
+        Me.Name = "AdventurerHomeForm"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text = "Adventurer's Journal"
+        Me.ResumeLayout(False)
+
     End Sub
 
     Private Sub SetupUI()
@@ -188,6 +195,10 @@ Public Class AdventurerHomeForm
     Private Sub BackButton_Click(sender As Object, e As EventArgs)
         ' Close the main form and exit the application
         Me.Close()
+    End Sub
+
+    Private Sub AdventurerHomeForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
     End Sub
 End Class
 

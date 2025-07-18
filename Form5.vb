@@ -31,7 +31,9 @@ Public Class SignUpForm
 
     Private Sub InitializeComponent()
         Me.SuspendLayout()
-
+        '
+        'SignUpForm
+        '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(282, 253)
@@ -40,6 +42,7 @@ Public Class SignUpForm
         Me.Text = "LakbayPH - Sign Up"
         Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.ResumeLayout(False)
+
     End Sub
 
     Private Sub Form_Resized(sender As Object, e As EventArgs) Handles MyBase.Resize
@@ -324,77 +327,102 @@ Public Class SignUpForm
         End If
     End Sub
 
-
     Private Function CreateUserAccount() As Boolean
-
         Try
+            ' Check if user exists first
             If CheckUserExists(txtUsername.Text, txtEmail.Text) Then
                 MessageBox.Show("Username or email already exists. Please choose different credentials.",
-                      "User Exists", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                  "User Exists", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Return False
+            End If
+
+            ' Open connection
+            If conn.State = ConnectionState.Closed Then
+                conn.Open()
             End If
 
             Dim hashedPassword As String = HashPassword(txtPassword.Text)
-            Dim query As String = "INSERT INTO Users (FirstName, LastName, Email, Username, Gender, Password, DateCreated) VALUES (@FirstName, @LastName, @Email, @Username, @Gender, @Password, @DateCreated)"
 
-            dbcomm.Parameters.AddWithValue("@FirstName", If(String.IsNullOrWhiteSpace(txtFirstName.Text), DBNull.Value, txtFirstName.Text.Trim()))
-            dbcomm.Parameters.AddWithValue("@LastName", If(String.IsNullOrWhiteSpace(txtLastName.Text), DBNull.Value, txtLastName.Text.Trim()))
-            dbcomm.Parameters.AddWithValue("@Email", txtEmail.Text.Trim().ToLower())
-            dbcomm.Parameters.AddWithValue("@Username", txtUsername.Text.Trim().ToLower())
-            dbcomm.Parameters.AddWithValue("@Gender", If(cmbGender.SelectedItem IsNot Nothing, cmbGender.SelectedItem.ToString(), DBNull.Value))
-            dbcomm.Parameters.AddWithValue("@Password", hashedPassword)
-            dbcomm.Parameters.AddWithValue("@DateCreated", DateTime.Now)
+            ' Updated query to match your database schema
+            Dim query As String = "INSERT INTO userss (FirstName, LastName, Email, Username, Password_, CreatedAt) VALUES (@FirstName, @LastName, @Email, @Username, @Password, @CreatedAt)"
 
-            Dim rowsAffected As Integer = dbcomm.ExecuteNonQuery()
+            ' Initialize command properly
+            Using dbcomm As New MySqlCommand(query, conn)
+                ' Add parameters
+                dbcomm.Parameters.AddWithValue("@FirstName", If(String.IsNullOrWhiteSpace(txtFirstName.Text), DBNull.Value, txtFirstName.Text.Trim()))
+                dbcomm.Parameters.AddWithValue("@LastName", If(String.IsNullOrWhiteSpace(txtLastName.Text), DBNull.Value, txtLastName.Text.Trim()))
+                dbcomm.Parameters.AddWithValue("@Email", txtEmail.Text.Trim().ToLower())
+                dbcomm.Parameters.AddWithValue("@Username", txtUsername.Text.Trim().ToLower())
+                dbcomm.Parameters.AddWithValue("@Password", hashedPassword)
+                dbcomm.Parameters.AddWithValue("@CreatedAt", DateTime.Now)
 
-            If rowsAffected > 0 Then
-                MessageBox.Show("User account created successfully!", "Success",
-                      MessageBoxButtons.OK, MessageBoxIcon.Information)
-                Return True
-            Else
-                MessageBox.Show("Failed to create user account. No rows affected.", "Error",
+                Dim rowsAffected As Integer = dbcomm.ExecuteNonQuery()
+
+                If rowsAffected > 0 Then
+                    Return True
+                Else
+                    MessageBox.Show("Failed to create user account. No rows affected.", "Error",
                       MessageBoxButtons.OK, MessageBoxIcon.Error)
-                Return False
-            End If
+                    Return False
+                End If
+            End Using
 
         Catch ex As MySqlException
             Select Case ex.Number
                 Case 1062
                     MessageBox.Show("Username or email already exists. Please choose different credentials.",
-                          "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                      "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 Case 2003
                     MessageBox.Show("Cannot connect to database server. Please check your connection.",
-                          "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                      "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Case Else
                     MessageBox.Show($"Database error: {ex.Message}", "Database Error",
-                          MessageBoxButtons.OK, MessageBoxIcon.Error)
+                      MessageBoxButtons.OK, MessageBoxIcon.Error)
             End Select
             Return False
 
         Catch ex As Exception
             MessageBox.Show($"Unexpected error: {ex.Message}", "Error",
-                  MessageBoxButtons.OK, MessageBoxIcon.Error)
+              MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return False
         Finally
-            If dbcomm IsNot Nothing Then
+            ' Close connection
+            If conn.State = ConnectionState.Open Then
+                conn.Close()
             End If
         End Try
     End Function
 
+    ' FIXED: CheckUserExists function - properly initialize MySqlCommand
     Private Function CheckUserExists(username As String, email As String) As Boolean
         Try
-            Dim query As String = "SELECT COUNT(*) FROM Users WHERE Username = @Username OR Email = @Email"
-            dbcomm.Parameters.AddWithValue("@Username", username.Trim().ToLower())
-            dbcomm.Parameters.AddWithValue("@Email", email.Trim().ToLower())
-            Dim count As Integer = Convert.ToInt32(dbcomm.ExecuteScalar())
-            Return count > 0
+            ' Open connection if closed
+            If conn.State = ConnectionState.Closed Then
+                conn.Open()
+            End If
+
+            Dim query As String = "SELECT COUNT(*) FROM userss WHERE Username = @Username OR Email = @Email"
+
+            ' Create a new MySqlCommand with proper initialization
+            Using dbcomm As New MySqlCommand(query, conn)
+                dbcomm.Parameters.AddWithValue("@Username", username.Trim().ToLower())
+                dbcomm.Parameters.AddWithValue("@Email", email.Trim().ToLower())
+
+                Dim count As Integer = Convert.ToInt32(dbcomm.ExecuteScalar())
+                Return count > 0
+            End Using
+
         Catch ex As Exception
             MessageBox.Show("Error checking user existence: " & ex.Message, "Database Error",
                       MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Return True
+            Return True ' Return True to prevent duplicate creation on error
+        Finally
+            ' Close connection
+            If conn.State = ConnectionState.Open Then
+                conn.Close()
+            End If
         End Try
     End Function
-
 
     Private Function HashPassword(password As String) As String
         Try
@@ -422,56 +450,6 @@ Public Class SignUpForm
                       MessageBoxButtons.OK, MessageBoxIcon.Error)
 
             Throw New InvalidOperationException("Password hashing failed", ex)
-        End Try
-    End Function
-
-    ' Additional helper function for input validation
-    Private Function ValidateUserInput() As Boolean
-        Try
-            ' Check required fields
-            If String.IsNullOrWhiteSpace(txtUsername.Text) Then
-                MessageBox.Show("Username is required.", "Validation Error",
-                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                txtUsername.Focus()
-                Return False
-            End If
-
-            If String.IsNullOrWhiteSpace(txtEmail.Text) Then
-                MessageBox.Show("Email is required.", "Validation Error",
-                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                txtEmail.Focus()
-                Return False
-            End If
-
-            If String.IsNullOrWhiteSpace(txtPassword.Text) Then
-                MessageBox.Show("Password is required.", "Validation Error",
-                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                txtPassword.Focus()
-                Return False
-            End If
-
-            ' email validation
-            If Not txtEmail.Text.Contains("@") OrElse Not txtEmail.Text.Contains(".") Then
-                MessageBox.Show("Please enter a valid email address.", "Validation Error",
-                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                txtEmail.Focus()
-                Return False
-            End If
-
-            ' Password strength check
-            If txtPassword.Text.Length < 6 Then
-                MessageBox.Show("Password must be at least 6 characters long.", "Validation Error",
-                          MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                txtPassword.Focus()
-                Return False
-            End If
-
-            Return True
-
-        Catch ex As Exception
-            MessageBox.Show($"Validation error: {ex.Message}", "Error",
-                      MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Return False
         End Try
     End Function
 
@@ -663,4 +641,7 @@ Public Class SignUpForm
         If txtFirstName IsNot Nothing Then txtFirstName.Focus()
     End Sub
 
+    Private Sub SignUpForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
 End Class

@@ -1,16 +1,23 @@
 ﻿Imports System.Drawing
 Imports System.Windows.Forms
+Imports MySqlConnector
+Imports System.Security.Cryptography
+Imports System.Text
 
 Public Class MainForm
     Inherits Form
 
+    ' Database connection
+    Dim conn As MySqlConnection = New MySqlConnection("Server=localhost;Database=lakbayph_web;Uid=root;Pwd=;")
+    Public sql As String
+    Public dbcomm As MySqlCommand
+
     Private logo As PictureBox
     Private lblTitle As Label
-    Private btnHome As Button
     Private btnPackages As Button
     Private btnAboutUs As Button
     Private btnMenu As Button
-    Private btnAdventurerHome As Button ' Added this button
+    Private btnAdventurerHome As Button
 
     ' Login Panel Controls
     Private pnlLogin As Panel
@@ -29,6 +36,20 @@ Public Class MainForm
     Private lblSubtitle As Label
     Private logoMain As PictureBox
 
+    ' Login status tracking
+    Private loggedInUser As UserInfo = Nothing
+
+    ' User Info class to store logged-in user data
+    Public Class UserInfo
+        Public Property UserID As Integer
+        Public Property Username As String
+        Public Property Email As String
+        Public Property FirstName As String
+        Public Property LastName As String
+        Public Property IsActive As Boolean
+        Public Property CreatedAt As DateTime
+    End Class
+
     Public Sub New()
         InitializeComponent()
         SetupForm()
@@ -38,12 +59,16 @@ Public Class MainForm
 
     Private Sub InitializeComponent()
         Me.SuspendLayout()
-        Me.AutoScaleDimensions = New SizeF(8.0F, 16.0F)
-        Me.AutoScaleMode = AutoScaleMode.Font
-        Me.ClientSize = New Size(1200, 800)
+        '
+        'MainForm
+        '
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.ClientSize = New System.Drawing.Size(1200, 800)
+        Me.Name = "MainForm"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "LakbayPH Travel & Tours"
-        Me.StartPosition = FormStartPosition.CenterScreen
-        Me.WindowState = FormWindowState.Maximized
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.ResumeLayout(False)
     End Sub
 
@@ -84,18 +109,6 @@ Public Class MainForm
         Me.Controls.Add(lblTitle)
 
         ' Navigation buttons
-        btnHome = New Button()
-        btnHome.Text = "Home"
-        btnHome.Font = New Font("Arial", 10, FontStyle.Regular)
-        btnHome.ForeColor = Color.White
-        btnHome.BackColor = Color.Transparent
-        btnHome.FlatStyle = FlatStyle.Flat
-        btnHome.FlatAppearance.BorderSize = 0
-        btnHome.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 100, 110)
-        btnHome.Location = New Point(400, 25)
-        btnHome.Size = New Size(80, 30)
-        Me.Controls.Add(btnHome)
-
         btnPackages = New Button()
         btnPackages.Text = "Packages"
         btnPackages.Font = New Font("Arial", 10, FontStyle.Regular)
@@ -104,7 +117,7 @@ Public Class MainForm
         btnPackages.FlatStyle = FlatStyle.Flat
         btnPackages.FlatAppearance.BorderSize = 0
         btnPackages.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 100, 110)
-        btnPackages.Location = New Point(500, 25)
+        btnPackages.Location = New Point(400, 25)
         btnPackages.Size = New Size(80, 30)
         Me.Controls.Add(btnPackages)
 
@@ -116,7 +129,7 @@ Public Class MainForm
         btnAboutUs.FlatStyle = FlatStyle.Flat
         btnAboutUs.FlatAppearance.BorderSize = 0
         btnAboutUs.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 100, 110)
-        btnAboutUs.Location = New Point(600, 25)
+        btnAboutUs.Location = New Point(500, 25)
         btnAboutUs.Size = New Size(80, 30)
         Me.Controls.Add(btnAboutUs)
 
@@ -129,7 +142,7 @@ Public Class MainForm
         btnAdventurerHome.FlatStyle = FlatStyle.Flat
         btnAdventurerHome.FlatAppearance.BorderSize = 0
         btnAdventurerHome.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 100, 110)
-        btnAdventurerHome.Location = New Point(700, 25)
+        btnAdventurerHome.Location = New Point(600, 25)
         btnAdventurerHome.Size = New Size(90, 30)
         Me.Controls.Add(btnAdventurerHome)
 
@@ -202,7 +215,7 @@ Public Class MainForm
         lblLogin.Size = New Size(260, 40)
         pnlLogin.Controls.Add(lblLogin)
 
-        ' Username textbox
+        ' Username textbox with placeholder
         txtUsername = New TextBox()
         txtUsername.Font = New Font("Arial", 12)
         txtUsername.Location = New Point(20, 90)
@@ -210,9 +223,11 @@ Public Class MainForm
         txtUsername.BackColor = Color.FromArgb(60, 100, 110)
         txtUsername.ForeColor = Color.White
         txtUsername.BorderStyle = BorderStyle.FixedSingle
+        txtUsername.Text = "Username or Email"
+        txtUsername.ForeColor = Color.LightGray
         pnlLogin.Controls.Add(txtUsername)
 
-        ' Password textbox
+        ' Password textbox with placeholder
         txtPassword = New TextBox()
         txtPassword.Font = New Font("Arial", 12)
         txtPassword.Location = New Point(20, 140)
@@ -220,7 +235,8 @@ Public Class MainForm
         txtPassword.BackColor = Color.FromArgb(60, 100, 110)
         txtPassword.ForeColor = Color.White
         txtPassword.BorderStyle = BorderStyle.FixedSingle
-        txtPassword.UseSystemPasswordChar = True
+        txtPassword.Text = "Password"
+        txtPassword.ForeColor = Color.LightGray
         pnlLogin.Controls.Add(txtPassword)
 
         ' Remember me checkbox
@@ -278,7 +294,6 @@ Public Class MainForm
     End Sub
 
     Private Sub SetupEventHandlers()
-        AddHandler btnHome.Click, AddressOf BtnHome_Click
         AddHandler btnPackages.Click, AddressOf BtnPackages_Click
         AddHandler btnAboutUs.Click, AddressOf BtnAboutUs_Click
         AddHandler btnSignUpLogin.Click, AddressOf BtnSignUp_Click
@@ -286,32 +301,216 @@ Public Class MainForm
         AddHandler lblForgotPassword.Click, AddressOf LblForgotPassword_Click
         AddHandler btnMenu.Click, AddressOf BtnMenu_Click
         AddHandler btnAdventurerHome.Click, AddressOf BtnAdventurerHome_Click
+
+        ' Add placeholder handlers for username and password textboxes
+        AddHandler txtUsername.GotFocus, AddressOf TxtUsername_GotFocus
+        AddHandler txtUsername.LostFocus, AddressOf TxtUsername_LostFocus
+        AddHandler txtPassword.GotFocus, AddressOf TxtPassword_GotFocus
+        AddHandler txtPassword.LostFocus, AddressOf TxtPassword_LostFocus
+
+        ' Add Enter key handler for login
+        AddHandler txtUsername.KeyPress, AddressOf TextBox_KeyPress
+        AddHandler txtPassword.KeyPress, AddressOf TextBox_KeyPress
     End Sub
 
-    ' Navigation function for Home button - UPDATED
-    Private Sub BtnHome_Click(sender As Object, e As EventArgs)
-        NavigateToHome()
+    ' Placeholder handlers for username textbox
+    Private Sub TxtUsername_GotFocus(sender As Object, e As EventArgs)
+        If txtUsername.Text = "Username or Email" Then
+            txtUsername.Text = ""
+            txtUsername.ForeColor = Color.White
+        End If
     End Sub
 
-    Private Sub NavigateToHome()
+    Private Sub TxtUsername_LostFocus(sender As Object, e As EventArgs)
+        If String.IsNullOrWhiteSpace(txtUsername.Text) Then
+            txtUsername.Text = "Username or Email"
+            txtUsername.ForeColor = Color.LightGray
+        End If
+    End Sub
+
+    ' Placeholder handlers for password textbox
+    Private Sub TxtPassword_GotFocus(sender As Object, e As EventArgs)
+        If txtPassword.Text = "Password" Then
+            txtPassword.Text = ""
+            txtPassword.ForeColor = Color.White
+            txtPassword.UseSystemPasswordChar = True
+        End If
+    End Sub
+
+    Private Sub TxtPassword_LostFocus(sender As Object, e As EventArgs)
+        If String.IsNullOrWhiteSpace(txtPassword.Text) Then
+            txtPassword.Text = "Password"
+            txtPassword.ForeColor = Color.LightGray
+            txtPassword.UseSystemPasswordChar = False
+        End If
+    End Sub
+
+    ' Handle Enter key press in textboxes
+    Private Sub TextBox_KeyPress(sender As Object, e As KeyPressEventArgs)
+        If e.KeyChar = Chr(13) Then ' Enter key
+            BtnLogIn_Click(sender, e)
+        End If
+    End Sub
+
+    ' Updated Login Button Click Event with better error handling
+    Private Sub BtnLogIn_Click(sender As Object, e As EventArgs)
         Try
-            ' Create and show the TravelHomepageForm (or whatever your home form is called)
-            Dim homeForm As New TravelHomepageForm()
+            ' Validate input
+            If Not ValidateLoginInput() Then
+                Return
+            End If
 
-            ' Hide current form
-            Me.Hide()
+            ' Get username/email and password
+            Dim usernameOrEmail As String = txtUsername.Text.Trim()
+            Dim password As String = txtPassword.Text
 
-            ' Show the home form as a modal dialog
-            homeForm.ShowDialog()
+            ' Authenticate user
+            Dim user As UserInfo = AuthenticateUser(usernameOrEmail, password)
 
-            ' Show current form again when home form is closed
-            Me.Show()
+            If user IsNot Nothing Then
+                ' Login successful
+                loggedInUser = user
+
+                ' Show success message
+                MessageBox.Show($"Welcome back, {user.FirstName}! Redirecting to home page...", "Login Successful",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information)
+
+                ' Create and show TravelHomepageForm
+                Try
+                    ' Check if TravelHomepageForm class exists and has the correct constructor
+                    Dim homeForm As TravelHomepageForm = New TravelHomepageForm(user)
+
+                    ' Hide current form before showing new one
+                    Me.Hide()
+
+                    ' Show the new form
+                    homeForm.Show()
+
+                    ' Optional: Close this form completely instead of just hiding
+                    Me.Close()
+
+                Catch ex As Exception
+                    ' If there's an error creating TravelHomepageForm, show this form again
+                    Me.Show()
+                    MessageBox.Show($"Error opening Travel Homepage: {ex.Message}", "Navigation Error",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error)
+                End Try
+
+            Else
+                ' Login failed
+                MessageBox.Show("Invalid username/email or password. Please try again.",
+                              "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+
+                ' Clear password field
+                txtPassword.Text = "Password"
+                txtPassword.ForeColor = Color.LightGray
+                txtPassword.UseSystemPasswordChar = False
+                txtUsername.Focus()
+            End If
 
         Catch ex As Exception
-            MessageBox.Show($"Error opening Home: {ex.Message}", "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Me.Show() ' Ensure main form is visible even if error occurs
+            MessageBox.Show($"Login error: {ex.Message}", "Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
+
+    ' Validate login input
+    Private Function ValidateLoginInput() As Boolean
+        ' Check if username/email is entered
+        If txtUsername.Text = "Username or Email" Or String.IsNullOrWhiteSpace(txtUsername.Text) Then
+            MessageBox.Show("Please enter your username or email address.",
+                          "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtUsername.Focus()
+            Return False
+        End If
+
+        ' Check if password is entered
+        If txtPassword.Text = "Password" Or String.IsNullOrWhiteSpace(txtPassword.Text) Then
+            MessageBox.Show("Please enter your password.",
+                          "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtPassword.Focus()
+            Return False
+        End If
+
+        Return True
+    End Function
+
+    ' Authenticate user against database
+    Private Function AuthenticateUser(usernameOrEmail As String, password As String) As UserInfo
+        Try
+            ' Open connection
+            If conn.State = ConnectionState.Closed Then
+                conn.Open()
+            End If
+
+            ' Hash the provided password to compare with stored hash
+            Dim hashedPassword As String = HashPassword(password)
+
+            ' Query to find user by username or email
+            Dim query As String = "SELECT UserID, Username, Email, Password_, FirstName, LastName, IsActive, CreatedAt " &
+                                 "FROM userss WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) AND IsActive = 1"
+
+            Using dbcomm As New MySqlCommand(query, conn)
+                dbcomm.Parameters.AddWithValue("@UsernameOrEmail", usernameOrEmail.ToLower())
+
+                Using reader As MySqlDataReader = dbcomm.ExecuteReader()
+                    If reader.Read() Then
+                        ' Check if password matches
+                        Dim storedPassword As String = reader("Password_").ToString()
+
+                        If storedPassword = hashedPassword Then
+                            ' Password matches, create user info object
+                            Dim user As New UserInfo() With {
+                                .UserID = Convert.ToInt32(reader("UserID")),
+                                .Username = reader("Username").ToString(),
+                                .Email = reader("Email").ToString(),
+                                .FirstName = reader("FirstName").ToString(),
+                                .LastName = reader("LastName").ToString(),
+                                .IsActive = Convert.ToBoolean(reader("IsActive")),
+                                .CreatedAt = Convert.ToDateTime(reader("CreatedAt"))
+                            }
+
+                            Return user
+                        End If
+                    End If
+                End Using
+            End Using
+
+            ' User not found or password doesn't match
+            Return Nothing
+
+        Catch ex As Exception
+            MessageBox.Show($"Authentication error: {ex.Message}", "Database Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return Nothing
+        Finally
+            ' Close connection
+            If conn.State = ConnectionState.Open Then
+                conn.Close()
+            End If
+        End Try
+    End Function
+
+    ' Hash password using SHA256
+    Private Function HashPassword(password As String) As String
+        Try
+            If String.IsNullOrEmpty(password) Then
+                Throw New ArgumentException("Password cannot be null or empty")
+            End If
+
+            Using sha256Hash As SHA256 = SHA256.Create()
+                Dim bytes As Byte() = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password))
+                Dim builder As New StringBuilder(bytes.Length * 2)
+                For Each b As Byte In bytes
+                    builder.Append(b.ToString("x2"))
+                Next
+                Return builder.ToString()
+            End Using
+
+        Catch ex As Exception
+            Throw New InvalidOperationException("Password hashing failed", ex)
+        End Try
+    End Function
 
     Private Sub BtnPackages_Click(sender As Object, e As EventArgs)
         Try
@@ -325,7 +524,6 @@ Public Class MainForm
         End Try
     End Sub
 
-    ' Fixed the adventurer button click function
     Private Sub BtnAdventurerHome_Click(sender As Object, e As EventArgs)
         Try
             Dim adventurerForm As New AdventurerHomeForm()
@@ -362,18 +560,11 @@ Public Class MainForm
         End Try
     End Sub
 
-    Private Sub BtnLogIn_Click(sender As Object, e As EventArgs)
-        ' Handle login logic here
-        MessageBox.Show("Login functionality to be implemented", "Login", MessageBoxButtons.OK, MessageBoxIcon.Information)
-    End Sub
-
     Private Sub LblForgotPassword_Click(sender As Object, e As EventArgs)
-        ' Handle forgot password logic here
         MessageBox.Show("Forgot password functionality to be implemented", "Forgot Password", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
     Private Sub BtnMenu_Click(sender As Object, e As EventArgs)
-        ' Handle menu toggle logic here
         MessageBox.Show("Menu functionality to be implemented", "Menu", MessageBoxButtons.OK, MessageBoxIcon.Information)
     End Sub
 
@@ -385,5 +576,20 @@ Public Class MainForm
         If btnMenu IsNot Nothing Then
             btnMenu.Location = New Point(Me.Width - 60, 20)
         End If
+    End Sub
+
+    ' Property to get current logged-in user
+    Public ReadOnly Property CurrentUser As UserInfo
+        Get
+            Return loggedInUser
+        End Get
+    End Property
+
+    ' Method to check if user is logged in
+    Public Function IsUserLoggedIn() As Boolean
+        Return loggedInUser IsNot Nothing
+    End Function
+
+    Private Sub MainForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
     End Sub
 End Class

@@ -24,24 +24,39 @@ Public Class TravelHomepageForm
         Color.FromArgb(255, 140, 0),
         Color.FromArgb(255, 20, 147)
     }
+    Private user As MainForm.UserInfo
 
+    ' Default constructor
     Public Sub New()
         InitializeComponent()
         SetupUI()
         SetupAnimations()
     End Sub
 
-    Private Sub InitializeComponent()
-        Me.Text = "Lakbay PH Travel & Tours - Discover Amazing Destinations"
-        Me.Size = New Size(1400, 900)
-        Me.StartPosition = FormStartPosition.CenterScreen
-        Me.BackColor = Color.FromArgb(240, 248, 255)
-        Me.Font = New Font("Segoe UI", 10, FontStyle.Regular)
-        Me.Icon = SystemIcons.Application
-        Me.MinimumSize = New Size(1000, 700)
+    ' Constructor with user parameter - FIXED
+    Public Sub New(user As MainForm.UserInfo)
+        Me.user = user
+        InitializeComponent()
+        SetupUI()
+        SetupAnimations()
+        UpdateUIForLoggedInUser()
+    End Sub
 
-        ' Enable double buffering for smooth animations
-        SetStyle(ControlStyles.AllPaintingInWmPaint Or ControlStyles.UserPaint Or ControlStyles.DoubleBuffer, True)
+    Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(TravelHomepageForm))
+        Me.SuspendLayout()
+        '
+        'TravelHomepageForm
+        '
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(240, Byte), Integer), CType(CType(248, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.ClientSize = New System.Drawing.Size(1382, 853)
+        Me.Font = New System.Drawing.Font("Segoe UI", 10.0!)
+        ' Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon) ' Comment this out if you don't have an icon
+        Me.MinimumSize = New System.Drawing.Size(1000, 700)
+        Me.Name = "TravelHomepageForm"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text = "Lakbay PH Travel & Tours - Discover Amazing Destinations"
+        Me.ResumeLayout(False)
     End Sub
 
     Private Sub SetupUI()
@@ -119,7 +134,7 @@ Public Class TravelHomepageForm
         AddHandler exploreButton.Paint, AddressOf ExploreButton_Paint
         headerPanel.Controls.Add(exploreButton)
 
-        ' Add sign up button
+        ' Add sign up button (will be modified if user is logged in)
         Dim signUpButton As New Button With {
             .Text = "👤 Sign Up",
             .Size = New Size(180, 60),
@@ -128,7 +143,8 @@ Public Class TravelHomepageForm
             .ForeColor = Color.White,
             .Font = New Font("Segoe UI", 14, FontStyle.Bold),
             .FlatStyle = FlatStyle.Flat,
-            .Cursor = Cursors.Hand
+            .Cursor = Cursors.Hand,
+            .Tag = "signUpButton" ' Add tag to identify this button
         }
         signUpButton.FlatAppearance.BorderSize = 0
         AddHandler signUpButton.Click, AddressOf SignUpButton_Click
@@ -362,6 +378,35 @@ Public Class TravelHomepageForm
         Me.Controls.Add(footerPanel)
     End Sub
 
+    ' NEW METHOD: Update UI for logged-in user
+    Private Sub UpdateUIForLoggedInUser()
+        If user IsNot Nothing Then
+            ' Find the sign up button and change it to a welcome message or logout button
+            For Each control As Control In headerPanel.Controls
+                If TypeOf control Is Button AndAlso control.Tag IsNot Nothing AndAlso control.Tag.ToString() = "signUpButton" Then
+                    Dim signUpButton As Button = CType(control, Button)
+                    signUpButton.Text = $"👋 Welcome, {user.FirstName}!"
+                    signUpButton.BackColor = Color.FromArgb(52, 152, 219)
+                    ' Remove the click handler for sign up and add logout handler
+                    RemoveHandler signUpButton.Click, AddressOf SignUpButton_Click
+                    AddHandler signUpButton.Click, AddressOf WelcomeButton_Click
+                    Exit For
+                End If
+            Next
+        End If
+    End Sub
+
+    ' NEW METHOD: Handle welcome button click (for logged-in users)
+    Private Sub WelcomeButton_Click(sender As Object, e As EventArgs)
+        Dim result As DialogResult = MessageBox.Show($"Hello {user.FirstName}! Would you like to logout?", "User Menu", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+        If result = DialogResult.Yes Then
+            ' Logout logic - return to main form
+            Me.Close()
+            Dim mainForm As New MainForm()
+            mainForm.Show()
+        End If
+    End Sub
+
     Private Sub SetupAnimations()
         fadeTimer = New Timer With {
             .Interval = 4000,
@@ -498,14 +543,27 @@ Public Class TravelHomepageForm
         path.CloseAllFigures()
         Return path
     End Function
+
+    Private Sub TravelHomepageForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        ' Any additional initialization can go here
+    End Sub
+
+    ' Property to get current user
+    Public ReadOnly Property CurrentUser As MainForm.UserInfo
+        Get
+            Return user
+        End Get
+    End Property
 End Class
 
-' Program entry point
+' Program entry point - Only use this if TravelHomepageForm is your startup form
+' If MainForm is your startup form, remove this module
 Module Program
     <STAThread>
     Sub Main()
         Application.EnableVisualStyles()
         Application.SetCompatibleTextRenderingDefault(False)
-        Application.Run(New TravelHomepageForm())
+        ' Start with MainForm instead of TravelHomepageForm
+        Application.Run(New MainForm())
     End Sub
 End Module
