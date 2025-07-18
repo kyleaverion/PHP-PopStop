@@ -33,37 +33,116 @@ Public Class PackagesWithoutUserForm
     End Sub
 
     Private Sub InitializeComponent()
-        Me.components = New System.ComponentModel.Container()
+        Me.pnlNavigation = New System.Windows.Forms.Panel()
+        Me.lblLogo = New System.Windows.Forms.Label()
+        Me.btnHome = New System.Windows.Forms.Button()
+        Me.btnPackages = New System.Windows.Forms.Button()
+        Me.btnAboutUs = New System.Windows.Forms.Button()
+        Me.pnlBackground = New System.Windows.Forms.Panel()
+        Me.pnlDomestic = New System.Windows.Forms.Panel()
+        Me.pnlInternational = New System.Windows.Forms.Panel()
+        Me.pnlFreediving = New System.Windows.Forms.Panel()
+        Me.lblDomestic = New System.Windows.Forms.Label()
+        Me.lblInternational = New System.Windows.Forms.Label()
+        Me.lblFreediving = New System.Windows.Forms.Label()
         Me.SuspendLayout()
-
-        ' Form settings
-        Me.Text = "LakbayPH - Travel Packages"
-        Me.Size = New Size(1400, 800)
-        Me.StartPosition = FormStartPosition.CenterScreen
-        Me.FormBorderStyle = FormBorderStyle.Sizable
-        Me.BackColor = Color.FromArgb(44, 95, 97)
-        Me.WindowState = FormWindowState.Maximized
-
-        ' Initialize controls
-        Me.pnlNavigation = New Panel()
-        Me.lblLogo = New Label()
-        Me.btnHome = New Button()
-        Me.btnPackages = New Button()
-        Me.btnAboutUs = New Button()
-        Me.pnlBackground = New Panel()
-        Me.pnlDomestic = New Panel()
-        Me.pnlInternational = New Panel()
-        Me.pnlFreediving = New Panel()
-        Me.lblDomestic = New Label()
-        Me.lblInternational = New Label()
-        Me.lblFreediving = New Label()
-
-        ' Add controls to form
+        '
+        'pnlNavigation
+        '
+        Me.pnlNavigation.Location = New System.Drawing.Point(0, 0)
+        Me.pnlNavigation.Name = "pnlNavigation"
+        Me.pnlNavigation.Size = New System.Drawing.Size(200, 100)
+        Me.pnlNavigation.TabIndex = 0
+        '
+        'lblLogo
+        '
+        Me.lblLogo.Location = New System.Drawing.Point(0, 0)
+        Me.lblLogo.Name = "lblLogo"
+        Me.lblLogo.Size = New System.Drawing.Size(100, 23)
+        Me.lblLogo.TabIndex = 0
+        '
+        'btnHome
+        '
+        Me.btnHome.Location = New System.Drawing.Point(0, 0)
+        Me.btnHome.Name = "btnHome"
+        Me.btnHome.Size = New System.Drawing.Size(75, 23)
+        Me.btnHome.TabIndex = 0
+        '
+        'btnPackages
+        '
+        Me.btnPackages.Location = New System.Drawing.Point(0, 0)
+        Me.btnPackages.Name = "btnPackages"
+        Me.btnPackages.Size = New System.Drawing.Size(75, 23)
+        Me.btnPackages.TabIndex = 0
+        '
+        'btnAboutUs
+        '
+        Me.btnAboutUs.Location = New System.Drawing.Point(0, 0)
+        Me.btnAboutUs.Name = "btnAboutUs"
+        Me.btnAboutUs.Size = New System.Drawing.Size(75, 23)
+        Me.btnAboutUs.TabIndex = 0
+        '
+        'pnlBackground
+        '
+        Me.pnlBackground.Location = New System.Drawing.Point(0, 0)
+        Me.pnlBackground.Name = "pnlBackground"
+        Me.pnlBackground.Size = New System.Drawing.Size(200, 100)
+        Me.pnlBackground.TabIndex = 1
+        '
+        'pnlDomestic
+        '
+        Me.pnlDomestic.Location = New System.Drawing.Point(0, 0)
+        Me.pnlDomestic.Name = "pnlDomestic"
+        Me.pnlDomestic.Size = New System.Drawing.Size(200, 100)
+        Me.pnlDomestic.TabIndex = 0
+        '
+        'pnlInternational
+        '
+        Me.pnlInternational.Location = New System.Drawing.Point(0, 0)
+        Me.pnlInternational.Name = "pnlInternational"
+        Me.pnlInternational.Size = New System.Drawing.Size(200, 100)
+        Me.pnlInternational.TabIndex = 0
+        '
+        'pnlFreediving
+        '
+        Me.pnlFreediving.Location = New System.Drawing.Point(0, 0)
+        Me.pnlFreediving.Name = "pnlFreediving"
+        Me.pnlFreediving.Size = New System.Drawing.Size(200, 100)
+        Me.pnlFreediving.TabIndex = 0
+        '
+        'lblDomestic
+        '
+        Me.lblDomestic.Location = New System.Drawing.Point(0, 0)
+        Me.lblDomestic.Name = "lblDomestic"
+        Me.lblDomestic.Size = New System.Drawing.Size(100, 23)
+        Me.lblDomestic.TabIndex = 0
+        '
+        'lblInternational
+        '
+        Me.lblInternational.Location = New System.Drawing.Point(0, 0)
+        Me.lblInternational.Name = "lblInternational"
+        Me.lblInternational.Size = New System.Drawing.Size(100, 23)
+        Me.lblInternational.TabIndex = 0
+        '
+        'lblFreediving
+        '
+        Me.lblFreediving.Location = New System.Drawing.Point(0, 0)
+        Me.lblFreediving.Name = "lblFreediving"
+        Me.lblFreediving.Size = New System.Drawing.Size(100, 23)
+        Me.lblFreediving.TabIndex = 0
+        '
+        'PackagesWithoutUserForm
+        '
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(44, Byte), Integer), CType(CType(95, Byte), Integer), CType(CType(97, Byte), Integer))
+        Me.ClientSize = New System.Drawing.Size(1382, 753)
         Me.Controls.Add(Me.pnlNavigation)
         Me.Controls.Add(Me.pnlBackground)
-
+        Me.Name = "PackagesWithoutUserForm"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        Me.Text = "LakbayPH - Travel Packages"
+        Me.WindowState = System.Windows.Forms.FormWindowState.Maximized
         Me.ResumeLayout(False)
-        Me.PerformLayout()
+
     End Sub
 
     Private Sub SetupForm()
@@ -360,7 +439,15 @@ Public Class PackagesWithoutUserForm
 
     ' Navigation event handlers
     Private Sub BtnHome_Click(sender As Object, e As EventArgs)
-        MessageBox.Show("Navigating to Home page...", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        ' Hide current form and show MainForm
+        Me.Hide()
+
+        ' Create and show MainForm
+        Dim mainForm As New MainForm()
+        mainForm.Show()
+
+        ' Close this form
+        Me.Close()
     End Sub
 
     Private Sub BtnAboutUs_Click(sender As Object, e As EventArgs)
@@ -385,6 +472,10 @@ Public Class PackagesWithoutUserForm
             components.Dispose()
         End If
         MyBase.Dispose(disposing)
+    End Sub
+
+    Private Sub PackagesWithoutUserForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
     End Sub
 End Class
 
