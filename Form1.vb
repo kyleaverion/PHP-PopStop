@@ -376,25 +376,11 @@ Public Class MainForm
                               MessageBoxButtons.OK, MessageBoxIcon.Information)
 
                 ' Create and show TravelHomepageForm
-                Try
-                    ' Check if TravelHomepageForm class exists and has the correct constructor
-                    Dim homeForm As TravelHomepageForm = New TravelHomepageForm(user)
+                Dim travelerForm As New TravelHomepageForm()
+                travelerForm.Show()
 
-                    ' Hide current form before showing new one
-                    Me.Hide()
+                Me.Hide()
 
-                    ' Show the new form
-                    homeForm.Show()
-
-                    ' Optional: Close this form completely instead of just hiding
-                    Me.Close()
-
-                Catch ex As Exception
-                    ' If there's an error creating TravelHomepageForm, show this form again
-                    Me.Show()
-                    MessageBox.Show($"Error opening Travel Homepage: {ex.Message}", "Navigation Error",
-                                  MessageBoxButtons.OK, MessageBoxIcon.Error)
-                End Try
 
             Else
                 ' Login failed
@@ -537,15 +523,10 @@ Public Class MainForm
     End Sub
 
     Private Sub BtnAboutUs_Click(sender As Object, e As EventArgs)
-        Try
-            Dim aboutUsForm As New AboutUsForm()
-            Me.Hide()
-            aboutUsForm.ShowDialog()
-            Me.Show()
-        Catch ex As Exception
-            MessageBox.Show($"Error opening About Us: {ex.Message}", "Navigation Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Me.Show()
-        End Try
+        Dim aboutUsForm As New AboutUsForm()
+        aboutUsForm.ShowDialog()
+
+
     End Sub
 
     Private Sub BtnSignUp_Click(sender As Object, e As EventArgs)

@@ -113,7 +113,7 @@ Public Class TravelHomepageForm
         ' Enhanced navigation menu
         CreateNavigationMenu()
 
-        ' Add explore button
+        ' Add explore button - FIXED: Removed Paint event handler
         Dim exploreButton As New Button With {
             .Text = "🌍 Explore Destinations",
             .Size = New Size(250, 60),
@@ -126,10 +126,9 @@ Public Class TravelHomepageForm
         }
         exploreButton.FlatAppearance.BorderSize = 0
         AddHandler exploreButton.Click, AddressOf ExploreButton_Click
-        AddHandler exploreButton.Paint, AddressOf ExploreButton_Paint
         headerPanel.Controls.Add(exploreButton)
 
-        ' Add sign up button
+        ' Add sign up button - FIXED: Removed Paint event handler
         Dim signUpButton As New Button With {
             .Text = "👤 Sign Up",
             .Size = New Size(180, 60),
@@ -142,7 +141,6 @@ Public Class TravelHomepageForm
         }
         signUpButton.FlatAppearance.BorderSize = 0
         AddHandler signUpButton.Click, AddressOf SignUpButton_Click
-        AddHandler signUpButton.Paint, AddressOf SignUpButton_Paint
         AddHandler signUpButton.MouseEnter, AddressOf SignUpButton_MouseEnter
         AddHandler signUpButton.MouseLeave, AddressOf SignUpButton_MouseLeave
         headerPanel.Controls.Add(signUpButton)
@@ -406,19 +404,7 @@ Public Class TravelHomepageForm
         End Using
     End Sub
 
-    Private Sub ExploreButton_Paint(sender As Object, e As PaintEventArgs)
-        Dim rect As New Rectangle(0, 0, sender.Width, sender.Height)
-        Using brush As New LinearGradientBrush(rect, Color.FromArgb(255, 140, 0), Color.FromArgb(255, 100, 0), LinearGradientMode.Vertical)
-            e.Graphics.FillRectangle(brush, rect)
-        End Using
-    End Sub
-
-    Private Sub SignUpButton_Paint(sender As Object, e As PaintEventArgs)
-        Dim rect As New Rectangle(0, 0, sender.Width, sender.Height)
-        Using brush As New LinearGradientBrush(rect, Color.FromArgb(46, 204, 113), Color.FromArgb(39, 174, 96), LinearGradientMode.Vertical)
-            e.Graphics.FillRectangle(brush, rect)
-        End Using
-    End Sub
+    ' REMOVED: ExploreButton_Paint and SignUpButton_Paint methods
 
     Private Sub FeatureCard_Paint(sender As Object, e As PaintEventArgs)
         Dim rect As New Rectangle(0, 0, sender.Width - 1, sender.Height - 1)
@@ -433,6 +419,7 @@ Public Class TravelHomepageForm
         Try
             Dim lakbayForm As New LakbayPHPackagesForm()
             lakbayForm.Show()
+            Me.Close()
         Catch ex As Exception
             MessageBox.Show("Unable to open LakbayPH Packages form. Please ensure the form exists in your project.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning)
         End Try

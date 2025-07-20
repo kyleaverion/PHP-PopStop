@@ -1,6 +1,5 @@
 ﻿Imports System.Drawing
 Imports System.Windows.Forms
-Imports System.Drawing.Drawing2D
 
 Public Class PackagesWithoutUserForm
     Inherits Form
@@ -133,7 +132,7 @@ Public Class PackagesWithoutUserForm
         '
         'PackagesWithoutUserForm
         '
-        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(44, Byte), Integer), CType(CType(95, Byte), Integer), CType(CType(97, Byte), Integer))
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(26, Byte), Integer), CType(CType(188, Byte), Integer), CType(CType(156, Byte), Integer))
         Me.ClientSize = New System.Drawing.Size(1382, 753)
         Me.Controls.Add(Me.pnlNavigation)
         Me.Controls.Add(Me.pnlBackground)
@@ -146,17 +145,9 @@ Public Class PackagesWithoutUserForm
     End Sub
 
     Private Sub SetupForm()
-        ' Set form background
-        AddHandler Me.Paint, AddressOf Form_Paint
+        ' Set form background to tropical ocean color
+        Me.BackColor = Color.FromArgb(26, 188, 156)
         AddHandler Me.Resize, AddressOf Form_Resize
-    End Sub
-
-    Private Sub Form_Paint(sender As Object, e As PaintEventArgs)
-        ' Create ocean/tropical background
-        Dim rect As New Rectangle(0, 0, Me.Width, Me.Height)
-        Dim brush As New LinearGradientBrush(rect, Color.FromArgb(0, 150, 136), Color.FromArgb(26, 188, 156), LinearGradientMode.Vertical)
-        e.Graphics.FillRectangle(brush, rect)
-        brush.Dispose()
     End Sub
 
     Private Sub Form_Resize(sender As Object, e As EventArgs)
@@ -246,12 +237,11 @@ Public Class PackagesWithoutUserForm
     End Sub
 
     Private Sub SetupPackageCards()
-        ' Background Panel
+        ' Background Panel - tropical ocean color
         With Me.pnlBackground
             .Location = New Point(0, 70)
             .Size = New Size(Me.Width, Me.Height - 70)
-            .BackColor = Color.Transparent
-            AddHandler Me.Paint, AddressOf BackgroundPanel_Paint
+            .BackColor = Color.FromArgb(26, 188, 156)
         End With
 
         ' Calculate card positions
@@ -261,13 +251,12 @@ Public Class PackagesWithoutUserForm
         Dim startX As Integer = (Me.Width - (3 * cardWidth + 2 * spacing)) \ 2
         Dim startY As Integer = 100
 
-        ' Domestic Package Card
+        ' Domestic Package Card - tropical sunset colors
         With Me.pnlDomestic
             .Location = New Point(startX, startY)
             .Size = New Size(cardWidth, cardHeight)
-            .BackColor = Color.White
-            .BorderStyle = BorderStyle.None
-            AddHandler Me.Paint, AddressOf DomesticPanel_Paint
+            .BackColor = Color.FromArgb(255, 180, 180) ' Light coral/sunset color
+            .BorderStyle = BorderStyle.FixedSingle
             .Cursor = Cursors.Hand
             AddHandler .Click, AddressOf PnlDomestic_Click
             AddHandler .MouseEnter, AddressOf PackageCard_MouseEnter
@@ -277,7 +266,7 @@ Public Class PackagesWithoutUserForm
         ' Domestic Label
         With Me.lblDomestic
             .Text = "DOMESTIC"
-            .Font = New Font("Segoe UI", 32, FontStyle.Bold)
+            .Font = New Font("Segoe UI", 24, FontStyle.Bold)
             .ForeColor = Color.Black
             .Location = New Point(30, 350)
             .Size = New Size(290, 50)
@@ -285,13 +274,12 @@ Public Class PackagesWithoutUserForm
             .TextAlign = ContentAlignment.MiddleLeft
         End With
 
-        ' International Package Card
+        ' International Package Card - light blue/gray colors
         With Me.pnlInternational
             .Location = New Point(startX + cardWidth + spacing, startY)
             .Size = New Size(cardWidth, cardHeight)
-            .BackColor = Color.White
-            .BorderStyle = BorderStyle.None
-            AddHandler Me.Paint, AddressOf InternationalPanel_Paint
+            .BackColor = Color.FromArgb(220, 220, 240) ' Light blue-gray
+            .BorderStyle = BorderStyle.FixedSingle
             .Cursor = Cursors.Hand
             AddHandler .Click, AddressOf PnlInternational_Click
             AddHandler .MouseEnter, AddressOf PackageCard_MouseEnter
@@ -301,7 +289,7 @@ Public Class PackagesWithoutUserForm
         ' International Label
         With Me.lblInternational
             .Text = "INTERNATIONAL"
-            .Font = New Font("Segoe UI", 28, FontStyle.Bold)
+            .Font = New Font("Segoe UI", 24, FontStyle.Bold)
             .ForeColor = Color.FromArgb(50, 50, 50)
             .Location = New Point(30, 350)
             .Size = New Size(290, 50)
@@ -309,13 +297,12 @@ Public Class PackagesWithoutUserForm
             .TextAlign = ContentAlignment.MiddleLeft
         End With
 
-        ' Freediving Package Card
+        ' Freediving Package Card - deep ocean blue
         With Me.pnlFreediving
             .Location = New Point(startX + 2 * (cardWidth + spacing), startY)
             .Size = New Size(cardWidth, cardHeight)
-            .BackColor = Color.White
-            .BorderStyle = BorderStyle.None
-            AddHandler Me.Paint, AddressOf FreedivingPanel_Paint
+            .BackColor = Color.FromArgb(70, 130, 180) ' Steel blue/ocean color
+            .BorderStyle = BorderStyle.FixedSingle
             .Cursor = Cursors.Hand
             AddHandler .Click, AddressOf PnlFreediving_Click
             AddHandler .MouseEnter, AddressOf PackageCard_MouseEnter
@@ -325,8 +312,8 @@ Public Class PackagesWithoutUserForm
         ' Freediving Label
         With Me.lblFreediving
             .Text = "FREEDIVING"
-            .Font = New Font("Segoe UI", 32, FontStyle.Bold)
-            .ForeColor = Color.Black
+            .Font = New Font("Segoe UI", 24, FontStyle.Bold)
+            .ForeColor = Color.White ' White text on dark background
             .Location = New Point(30, 350)
             .Size = New Size(290, 50)
             .BackColor = Color.Transparent
@@ -354,104 +341,44 @@ Public Class PackagesWithoutUserForm
         pnlFreediving.Location = New Point(startX + 2 * (cardWidth + spacing), startY)
     End Sub
 
-    Private Sub BackgroundPanel_Paint(sender As Object, e As PaintEventArgs)
-        ' Create tropical ocean background
-        Dim rect As New Rectangle(0, 0, pnlBackground.Width, pnlBackground.Height)
-        Dim brush As New LinearGradientBrush(rect, Color.FromArgb(0, 150, 136), Color.FromArgb(26, 188, 156), LinearGradientMode.Vertical)
-        e.Graphics.FillRectangle(brush, rect)
-        brush.Dispose()
-    End Sub
-
-    Private Sub DomesticPanel_Paint(sender As Object, e As PaintEventArgs)
-        ' Create rounded rectangle with domestic background
-        Dim rect As New Rectangle(0, 0, pnlDomestic.Width, pnlDomestic.Height)
-        Dim path As GraphicsPath = CreateRoundedRectangle(rect, 20)
-
-        ' Gradient background (tropical sunset)
-        Dim brush As New LinearGradientBrush(rect, Color.FromArgb(255, 154, 158), Color.FromArgb(250, 208, 196), LinearGradientMode.Vertical)
-        e.Graphics.FillPath(brush, path)
-        brush.Dispose()
-
-        ' Add border
-        Using pen As New Pen(Color.White, 3)
-            e.Graphics.DrawPath(pen, path)
-        End Using
-
-        path.Dispose()
-    End Sub
-
-    Private Sub InternationalPanel_Paint(sender As Object, e As PaintEventArgs)
-        ' Create rounded rectangle with international background
-        Dim rect As New Rectangle(0, 0, pnlInternational.Width, pnlInternational.Height)
-        Dim path As GraphicsPath = CreateRoundedRectangle(rect, 20)
-
-        ' Gradient background (Paris sky)
-        Dim brush As New LinearGradientBrush(rect, Color.FromArgb(200, 200, 220), Color.FromArgb(250, 250, 255), LinearGradientMode.Vertical)
-        e.Graphics.FillPath(brush, path)
-        brush.Dispose()
-
-        ' Add border
-        Using pen As New Pen(Color.White, 3)
-            e.Graphics.DrawPath(pen, path)
-        End Using
-
-        path.Dispose()
-    End Sub
-
-    Private Sub FreedivingPanel_Paint(sender As Object, e As PaintEventArgs)
-        ' Create rounded rectangle with freediving background
-        Dim rect As New Rectangle(0, 0, pnlFreediving.Width, pnlFreediving.Height)
-        Dim path As GraphicsPath = CreateRoundedRectangle(rect, 20)
-
-        ' Gradient background (deep ocean)
-        Dim brush As New LinearGradientBrush(rect, Color.FromArgb(30, 60, 120), Color.FromArgb(70, 130, 180), LinearGradientMode.Vertical)
-        e.Graphics.FillPath(brush, path)
-        brush.Dispose()
-
-        ' Add border
-        Using pen As New Pen(Color.White, 3)
-            e.Graphics.DrawPath(pen, path)
-        End Using
-
-        path.Dispose()
-    End Sub
-
-    Private Function CreateRoundedRectangle(rect As Rectangle, radius As Integer) As GraphicsPath
-        Dim path As New GraphicsPath()
-        path.AddArc(rect.X, rect.Y, radius, radius, 180, 90)
-        path.AddArc(rect.X + rect.Width - radius, rect.Y, radius, radius, 270, 90)
-        path.AddArc(rect.X + rect.Width - radius, rect.Y + rect.Height - radius, radius, radius, 0, 90)
-        path.AddArc(rect.X, rect.Y + rect.Height - radius, radius, radius, 90, 90)
-        path.CloseAllFigures()
-        Return path
-    End Function
-
     ' Event handlers for card interactions
     Private Sub PackageCard_MouseEnter(sender As Object, e As EventArgs)
         Dim panel As Panel = DirectCast(sender, Panel)
         panel.Location = New Point(panel.Location.X, panel.Location.Y - 10)
+
+        ' Change color on hover for visual feedback
+        If panel Is pnlDomestic Then
+            panel.BackColor = Color.FromArgb(255, 200, 200) ' Lighter coral
+        ElseIf panel Is pnlInternational Then
+            panel.BackColor = Color.FromArgb(240, 240, 250) ' Lighter blue-gray
+        ElseIf panel Is pnlFreediving Then
+            panel.BackColor = Color.FromArgb(90, 150, 200) ' Lighter ocean blue
+        End If
     End Sub
 
     Private Sub PackageCard_MouseLeave(sender As Object, e As EventArgs)
         Dim panel As Panel = DirectCast(sender, Panel)
         panel.Location = New Point(panel.Location.X, panel.Location.Y + 10)
+
+        ' Restore original color
+        If panel Is pnlDomestic Then
+            panel.BackColor = Color.FromArgb(255, 180, 180) ' Original coral
+        ElseIf panel Is pnlInternational Then
+            panel.BackColor = Color.FromArgb(220, 220, 240) ' Original blue-gray
+        ElseIf panel Is pnlFreediving Then
+            panel.BackColor = Color.FromArgb(70, 130, 180) ' Original ocean blue
+        End If
     End Sub
 
     ' Navigation event handlers
     Private Sub BtnHome_Click(sender As Object, e As EventArgs)
-        ' Hide current form and show MainForm
-        Me.Hide()
-
-        ' Create and show MainForm
-        Dim mainForm As New MainForm()
-        mainForm.Show()
-
         ' Close this form
         Me.Close()
     End Sub
 
     Private Sub BtnAboutUs_Click(sender As Object, e As EventArgs)
-        MessageBox.Show("Navigating to About Us page...", "Navigation", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Dim aboutUsForm As New AboutUsForm()
+        aboutUsForm.Show()
     End Sub
 
     ' Package card event handlers

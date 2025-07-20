@@ -2,7 +2,7 @@
 Imports System.Drawing.Drawing2D
 Imports System.Windows.Forms
 
-Public Class AboutUsForm
+Public Class AboutUsFormwou
     Inherits Form
 
     Private headerPanel As Panel
@@ -297,7 +297,7 @@ Public Class AboutUsForm
 End Class
 
 ' Usage Example - Add this to your main form or startup
-Public Class Programs
+Public Class Programss
     Public Shared Sub Main()
         Application.EnableVisualStyles()
         Application.SetCompatibleTextRenderingDefault(False)

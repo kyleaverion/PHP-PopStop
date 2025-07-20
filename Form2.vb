@@ -64,18 +64,7 @@ Public Class AdventurerHomeForm
         leftPanel.BackColor = Color.FromArgb(52, 73, 94)
         leftPanel.Padding = New Padding(40)
 
-        ' Back button - positioned at the top left
-        Dim btnBack As New Button()
-        btnBack.Text = "← Back"
-        btnBack.Size = New Size(80, 35)
-        btnBack.Location = New Point(20, 20)
-        btnBack.BackColor = Color.FromArgb(149, 165, 166)
-        btnBack.ForeColor = Color.White
-        btnBack.FlatStyle = FlatStyle.Flat
-        btnBack.FlatAppearance.BorderSize = 0
-        btnBack.Cursor = Cursors.Hand
-        btnBack.Font = New Font("Arial", 10, FontStyle.Bold)
-        AddHandler btnBack.Click, AddressOf BackButton_Click
+
 
         ' Main quote label
         Dim quoteLabel As New Label()
@@ -106,7 +95,7 @@ Public Class AdventurerHomeForm
         ctaButton.Cursor = Cursors.Hand
         AddHandler ctaButton.Click, AddressOf StartAdventure_Click
 
-        leftPanel.Controls.AddRange({btnBack, quoteLabel, subtitleLabel, ctaButton})
+        leftPanel.Controls.AddRange({quoteLabel, subtitleLabel, ctaButton})
     End Sub
 
     Private Sub SetupRightPanel()
@@ -186,16 +175,9 @@ Public Class AdventurerHomeForm
     End Sub
 
     Private Sub StartAdventure_Click(sender As Object, e As EventArgs)
-        ' Open the LakbayPH Packages Form
-        Dim packagesForm As New MainForm()
-        Me.Hide() ' Hide the current form
-        packagesForm.ShowDialog() ' Show the packages form as a dialog
-        Me.Show() ' Show the main form again when packages form is closed
-    End Sub
-    Private Sub BackButton_Click(sender As Object, e As EventArgs)
-        ' Close the main form and exit the application
         Me.Close()
     End Sub
+
 
     Private Sub AdventurerHomeForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
